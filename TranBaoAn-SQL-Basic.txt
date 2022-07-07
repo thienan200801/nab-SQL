@@ -1,0 +1,162 @@
+Q1. 
+SELECT HOTEN, LUONG 
+FROM GIAOVIEN
+WHERE PHAI = 'Nu'
+
+Q2.
+SELECT HOTEN, LUONG*1.1 AS LUONG
+FROM GIAOVIEN 
+
+Q3.
+SELECT MAGV
+FROM GIAOVIEN
+WHERE HOTEN LIKE 'Nguyen%' 
+	AND LUONG > $2000
+UNION
+SELECT TRUONGBM
+FROM BOMON
+WHERE NGAYNHANCHUC > 1995
+
+Q4.
+SELECT HOTEN
+FROM GIAOVIEN G JOIN KHOA K ON G.MAGV = K.MAGV
+WHERE TENKHOA = 'Cong Nghe Thong Tin'
+
+Q5.
+SELECT *
+FROM BOMON JOIN GIAOVIEN ON MAGV = TRUONGBM
+
+Q6.
+SELECT *
+FROM BOMON B, GIAOVIEN G
+WHERE B.MABM = G.MABM
+GROUPBY MAGV
+
+Q7.
+SELECT TENDT, HOTEN AS CHUNHIEMDT
+FROM DETAI D, GIAOVIEN G
+WHERE D.GVCNDT = G.MAGV
+
+Q8.
+SELECT MAGV, HOTEN, LUONG, PHAI, NGAYSINH, SONHA, DUONG, QUAN, THANHPHO, GVQL, MABM 
+FROM GIAOVIEN, KHOA 
+WHERE TRUONGKHOA = MAGV
+GROUPBY MAKHOA
+
+Q9.
+SELECT MAGV
+FROM GIAOVIEN G, DETAI D, BOMON B
+WHERE G.MAGV = B.TRUONGBM AND D.GVCNDT = G.MAGV
+	AND TENBM = 'Vi Sinh' AND MADT = '006'
+
+Q10.
+SELECT D.MADT, TENCD, HOTEN, NGAYSINH, DIACHI
+FROM DETAI D, CHUDE C, GIAOVIEN G
+WHERE D.MACD = C.MACD AND G.MAGV = D.GVCNDT
+AND CAPQL = 'Thanh pho'
+
+Q11. Tìm họ tên của từng giáo viên và người phụ trách chuyên môn trực tiếp của giáo viên
+đó.
+SELECT GV1.HOTEN AS 'GIAO VIEN', GV2.HOTEN AS 'PHU TRACH CHUYEN MON'
+FROM GIAOVIEN G1, GIAOVIEN G2
+WHERE G1.GVQLCM = G2.MAGV
+
+Q12. Tìm họ tên của những giáo viên được “Nguyễn Thanh Tùng” phụ trách trực tiếp.
+SELECT HOTEN
+FROM GIAOVIEN
+WHERE GVQL = (SELECT MAGV FROM GIAOVIEN WHERE HOTEN = 'Nguyễn Thanh Tùng')
+
+Q13. Cho biết tên giáo viên là trưởng bộ môn “Hệ thống thông tin”.
+SELECT HOTEN
+FROM GIAOVIEN G
+WHERE G.MAGV = 
+	(SELECT TRUONGBM 
+	FROM BOMON B 
+	WHERE G.MAGV = B.TRUONGBM AND TENBM = 'Hệ thống thông tin')
+
+Q14. Cho biết tên người chủ nhiệm đề tài của những đề tài thuộc chủ đề Quản lý giáo dục.
+SELECT HOTEN
+FROM GIAOVIEN G, DETAI D
+WHERE G.MAGV = D.GVCNDT
+	AND MACD = (SELECT MACD 
+			FROM CHUDE C 
+			WHERE C.MACD = D.MACD AND TENCD = 'Quản lý giáo dục')
+
+Q15. Cho biết tên các công việc của đề tài HTTT quản lý các trường ĐH có thời gian bắt đầu
+trong tháng 3/2008.
+SELECT TENCV
+FROM CONGVIEC C, DETAI D
+WHERE C.MADT = D.MADT
+	AND TENDT = 'HTTT quản lý các trường ĐH'
+	MONTH(NGAYBD) = 3 AND YEAR(NGAYBD) = 2008
+
+Q16. Cho biết tên giáo viên và tên người quản lý chuyên môn của giáo viên đó.
+SELECT GV1.HOTEN AS 'GIAO VIEN', GV2.HOTEN AS 'QUAN LI'
+FROM GIAOVIEN G1, GIAOVIEN G2, BOMON B
+WHERE G1.MABM = B.MABM AND G2.MAGV = B.TRUONGBM
+
+Q17. Cho các công việc bắt đầu trong khoảng từ 01/01/2007 đến 01/08/2007.
+SELECT *
+FROM CONGVIEC 
+WHERE NGAYBD = '01/01/2007' AND NGAYKT = '01/08/2007'
+
+Q18. Cho biết họ tên các giáo viên cùng bộ môn với giáo viên “Trần Trà Hương”.
+SELECT HOTEN
+FROM GIAOVIEN G1
+WHERE G1.MABM = (SELECT G2.MABM FROM GIAOVIEN G2 WHERE HOTEN = 'Trần Trà Hương')
+
+Q19. Tìm những giáo viên vừa là trưởng bộ môn vừa chủ nhiệm đề tài.
+SELECT MAGV 
+FROM GIAOVIEN, BOMON
+WHERE MAGV = TRUONGBM 
+INTERSECT
+SELECT MAGV 
+FROM GIAOVIEN, DETAI
+WHERE MAGV = GVCNDT
+
+Q20. Cho biết tên những giáo viên vừa là trưởng khoa và vừa là trưởng bộ môn.
+SELECT HOTEN 
+FROM GIAOVIEN, BOMON
+WHERE MAGV = TRUONGBM 
+INTERSECT
+SELECT HOTEN 
+FROM GIAOVIEN, KHOA
+WHERE MAGV = TRUONGKHOA
+
+Q21. Cho biết tên những trưởng bộ môn mà vừa chủ nhiệm đề tài.
+SELECT HOTEN
+FROM GIAOVIEN G, BOMON B
+WHERE TRUONGBM = MAGV
+SELECT HOTEN
+FROM GIAOVIEN, DETAI
+WHERE MAGV = GVCNDT
+
+Q22. Cho biết mã số các trưởng khoa có chủ nhiệm đề tài.
+SELECT TRUONGKHOA
+FROM KHOA, GIAOVIEN, DETAI
+WHERE TRUONGKHOA = MAGV AND MAGV = GVCNDT
+
+Q23. Cho biết mã số các giáo viên thuộc bộ môn “HTTT” hoặc có tham gia đề tài mã “001”.
+SELECT MAGV 
+FROM GIAOVIEN G, BOMON B
+WHERE G.MABM = B.MABM
+AND B.MABM = 'HTTT' 
+EXCEPT
+SELECT MAGV
+FROM GIAOVIEN, DETAI
+WHERE MAGV = GVCNDT AND MADT = '001'
+
+Q24. Cho biết giáo viên làm việc cùng bộ môn với giáo viên 002.
+SELECT HOTEN
+FROM GIAOVIEN 
+WHERE MABM = (SELECT MABM FROM GIAOVIEN WHERE MAGV = '002')
+
+Q25. Tìm những giáo viên là trưởng bộ môn.
+SELECT *
+FROM GIAOVIEN G, BOMON B
+WHERE G.MABM = B.MABM
+
+Q26. Cho biết họ tên và mức lương của các giáo viên.
+SELECT HOTEN, LUONG
+FROM GIAOVIEN
+
